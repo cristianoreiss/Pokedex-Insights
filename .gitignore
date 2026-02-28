@@ -8,3 +8,13 @@ __pycache__/
 *.py[cod]
 
 airflow/logs/
+
+data/
+*.jsonl
+*.csv
+
+.idea/
+.vscode/
+
+.DS_Store
+Thumbs.db
