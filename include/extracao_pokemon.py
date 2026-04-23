@@ -1,55 +1,62 @@
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
 import requests
 import os
-import json
+from pymongo import MongoClient, collection, ReplaceOne
+from dotenv import load_dotenv
 
-# 1 - Função de extração dos dados
+## Carregando as variáveis do .env
+load_dotenv()
+CONNECTION_STRING = os.getenv("MONGO_URI")
+
+def pegar_colecao_banco(connection_string):
+    client = MongoClient(CONNECTION_STRING)
+    db = client['pokedex_db']
+    collection = db['bronze_pokemon']
+    return collection
+
+def obter_detalhes_pokemon(sessao,url):
+    response = sessao.get(url)
+    detalhe_pokemon = response.json()
+    return detalhe_pokemon
+
+def preparar_lote_pokemon(lista_pokemon):
+    lista_para_input = []
+    for pokemon in lista_pokemon:
+        operacao = ReplaceOne(
+            {"id": pokemon["id"]},
+            pokemon,
+            upsert=True
+        )
+        lista_para_input.append(operacao)
+    return lista_para_input
+
+
 def extracao_pokemon():
-    pasta_atual = os.path.dirname(os.path.abspath(__file__))
-    caminho_projeto = os.path.abspath(os.path.join(pasta_atual, '..','..'))
-    caminho_pasta = os.path.join(caminho_projeto,"data","raw")
-    caminho_arquivo = os.path.join(caminho_pasta, "bronze_pokemon.jsonl")
+    url_paginacao = "https://pokeapi.co/api/v2/pokemon/"
+    sessao = requests.Session()
+    colecao = pegar_colecao_banco(CONNECTION_STRING)
 
+    while(url_paginacao):
+        try:
+            response = sessao.get(url_paginacao)
+            pagina = response.json()
+            dados_brutos = pagina['results']
+            lista_pokemon = []
+            for item in dados_brutos:
+                url_pokemon = item["url"]
+                try:
+                    detalhe_pokemon = obter_detalhes_pokemon(sessao,url_pokemon)
+                except Exception as e:
+                    print(f"Erro: {e}")
+                    continue
+                lista_pokemon.append(detalhe_pokemon)
+            lista_para_input = preparar_lote_pokemon(lista_pokemon)
+            if lista_para_input:
+                colecao.bulk_write(lista_para_input)
+            url_paginacao = pagina['next']
+        except Exception as e:
+            print(f"erro: {e}")
+            break
+    print("Ingestão de dados feita!")
 
-    url_api = "https://pokeapi.co/api/v2/pokemon?limit=1025"
-    response = requests.get(url_api)
-
-
-    poke_item = response.json()['results']
-
-
-    with open(caminho_arquivo, "w") as f:
-        for item in poke_item:
-            nome_pokemon = item['name']
-            url_pokemon = item['url']
-
-            dict_pokemon = dict(
-                nome=nome_pokemon,
-                informacoes=requests.get(url_pokemon).json()
-            )
-            f.write(json.dumps(dict_pokemon, ensure_ascii=False) + "\n")
-
-# 2 - Configurações da DAG
-default_args = {
-    'owner': 'cristiano',
-    'start_date': datetime(2026,2,27),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5)
-}
-
-# 2 - Definição da DAG
-with DAG(
-    dag_id='bronze_pokemon',
-    default_args=default_args,
-    schedule_interval='@daily',
-    catchup=False,
-) as dag:
-    task1 = PythonOperator(
-        task_id='extracao_api_pokemon',
-        python_callable=extracao_pokemon,
-    )
-
-
-
+if __name__ == "__main__":
+    extracao_pokemon()
