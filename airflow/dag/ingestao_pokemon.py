@@ -6,45 +6,57 @@ from dotenv import load_dotenv
 ## Carregando as variáveis do .env
 load_dotenv()
 CONNECTION_STRING = os.getenv("MONGO_URI")
-client = MongoClient(CONNECTION_STRING)
 
-db = client['pokedex_db']
-collection = db['bronze_pokemon']
+def pegar_colecao_banco(connection_string):
+    client = MongoClient(CONNECTION_STRING)
+    db = client['pokedex_db']
+    collection = db['bronze_pokemon']
+    return collection
 
+def obter_detalhes_pokemon(sessao,url):
+    response = sessao.get(url)
+    detalhe_pokemon = response.json()
+    return detalhe_pokemon
+
+def preparar_lote_pokemon(lista_pokemon):
+    lista_para_input = []
+    for pokemon in lista_pokemon:
+        operacao = ReplaceOne(
+            {"id": pokemon["id"]},
+            pokemon,
+            upsert=True
+        )
+        lista_para_input.append(operacao)
+    return lista_para_input
 
 
 def ingestao_pokemon():
     url_paginacao = "https://pokeapi.co/api/v2/pokemon/"
+    sessao = requests.Session()
+    colecao = pegar_colecao_banco(CONNECTION_STRING)
 
-    while (url_paginacao):
+    while(url_paginacao):
         try:
-            response = requests.get(url_paginacao)
-            dados_brutos = response.json()
-            lista_pokemons = dados_brutos['results']
-            lista_para_input = []
-            for pokemon in lista_pokemons:
+            response = sessao.get(url_paginacao)
+            pagina = response.json()
+            dados_brutos = pagina['results']
+            lista_pokemon = []
+            for item in dados_brutos:
+                url_pokemon = item["url"]
                 try:
-                    detalhes_pokemon = requests.get(pokemon['url']).json()
-                except Exception as f:
-                    print(f"Erro ao pegar as informações: {f}")
+                    detalhe_pokemon = obter_detalhes_pokemon(sessao,url_pokemon)
+                except Exception as e:
+                    print(f"Erro: {e}")
                     continue
-                operacao = ReplaceOne(
-                    {"id": detalhes_pokemon["id"]},
-                    detalhes_pokemon,
-                    upsert=True
-                )
-                lista_para_input.append(operacao)
+                lista_pokemon.append(detalhe_pokemon)
+            lista_para_input = preparar_lote_pokemon(lista_pokemon)
             if lista_para_input:
-                collection.bulk_write(lista_para_input)
-            url_paginacao = dados_brutos['next']
+                colecao.bulk_write(lista_para_input)
+            url_paginacao = pagina['next']
         except Exception as e:
-            print(f"Ocorreu o seguinte erro: {e}")
+            print(f"erro: {e}")
             break
-    print("Inserção feita!")
+    print("Ingestão de dados feita!")
 
 if __name__ == "__main__":
     ingestao_pokemon()
-
-## 1 (OK) - Implementar o upsert do mongo para realizar a substituição
-## 2 - Implementar o tratamento de erro para o caso de não encontrar algum registro
-## 3 (OK) - Corrigir o while: "Python while True with conditional break": >> Tente inverter a ordem dentro do while. Em vez de buscar a "próxima página" no final do loop para usá-la na volta seguinte, tente estruturar de forma que o get da lista seja a primeira coisa a acontecer.
