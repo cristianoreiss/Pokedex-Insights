@@ -1,6 +1,6 @@
 import requests
 import os
-from pymongo import MongoClient, collection
+from pymongo import MongoClient, collection, ReplaceOne
 from dotenv import load_dotenv
 
 ## Carregando as variáveis do .env
@@ -23,14 +23,20 @@ def ingestao_pokemon():
         lista_para_input = []
         for pokemon in lista_pokemons:
             detalhes_pokemon = requests.get(pokemon['url']).json()
-            lista_para_input.append(detalhes_pokemon)
-        collection.insert_many(lista_para_input)
+            operacao = ReplaceOne(
+                {"id": detalhes_pokemon["id"]},
+                detalhes_pokemon,
+                upsert=True
+            )
+            lista_para_input.append(operacao)
+        collection.bulk_write(lista_para_input)
         url_paginacao = dados_brutos['next']
+    print("Inserção feita!")
 
 
 if __name__ == "__main__":
     ingestao_pokemon()
 
-## 1 - Implementar o upsert do mongo para realizar a substituição
+## 1 (OK) - Implementar o upsert do mongo para realizar a substituição
 ## 2 - Implementar o tratamento de erro para o caso de não encontrar algum registro
 ## 3 (OK) - Corrigir o while: "Python while True with conditional break": >> Tente inverter a ordem dentro do while. Em vez de buscar a "próxima página" no final do loop para usá-la na volta seguinte, tente estruturar de forma que o get da lista seja a primeira coisa a acontecer.
