@@ -5,13 +5,14 @@ from include.extracao_pokemon import extracao_pokemon
 from pendulum import datetime
 
 @dag(
-    start_date = datetime(2026, 4, 26,9),
+    start_date = datetime(2026, 4, 23,12),
     schedule="@daily",
     default_args={
         "owner": "Cristiano",
         "retries": 2,
         "retry_delay": timedelta(minutes=5)
-    }
+    },
+    catchup=False
 )
 def pipeline_pokedex():
 
