@@ -2,6 +2,6 @@
 pymongo
 requests
 pyspark
-azure-storage-filedatalake
+azure-storage-file-datalake
 azure-identity
 pendulum
