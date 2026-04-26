@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 load_dotenv()
 CONNECTION_STRING = os.getenv("MONGO_URI")
 
-def pegar_colecao_banco(connection_string):
+def pegar_colecao_banco(connection_string,db_name,collection_name):
     client = MongoClient(CONNECTION_STRING)
-    db = client['pokedex_db']
-    collection = db['bronze_pokemon']
+    db = client[db_name]
+    collection = db[collection_name]
     return collection
 
 def obter_detalhes_pokemon(sessao,url):
@@ -33,7 +33,7 @@ def preparar_lote_pokemon(lista_pokemon):
 def extracao_pokemon():
     url_paginacao = "https://pokeapi.co/api/v2/pokemon/"
     sessao = requests.Session()
-    colecao = pegar_colecao_banco(CONNECTION_STRING)
+    colecao = pegar_colecao_banco(CONNECTION_STRING,"pokedex_db","raw_pokemon")
 
     while(url_paginacao):
         try:
