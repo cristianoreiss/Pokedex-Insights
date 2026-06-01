@@ -30,7 +30,7 @@ def preparar_lote_pokemon(lista_pokemon):
     return lista_para_input
 
 
-def extracao_pokemon():
+def extract_pokemon():
     url_paginacao = "https://pokeapi.co/api/v2/pokemon/"
     sessao = requests.Session()
     colecao = pegar_colecao_banco(CONNECTION_STRING,"pokedex_db","raw_pokemon")
@@ -59,4 +59,4 @@ def extracao_pokemon():
     print("Ingestão de dados feita!")
 
 if __name__ == "__main__":
-    extracao_pokemon()
+    extract_pokemon()

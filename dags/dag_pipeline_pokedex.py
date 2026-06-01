@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from airflow.sdk import Asset, dag, task
-from include.extracao_pokemon import extracao_pokemon
+from include.extracao_pokemon import extract_pokemon
 from include.upload_to_bronze import upload_to_bronze
 from pendulum import datetime
 
@@ -19,7 +19,7 @@ def pipeline_pokedex():
 
     @task
     def task_extracao():
-        extracao_pokemon()
+        extract_pokemon()
 
     @task
     def task_load_bronze():
