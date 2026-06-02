@@ -5,7 +5,7 @@ Pokedex Insights é um projeto que tem como objetivo a construção de uma infra
 ## 🏗️ Arquitetura do Pipeline de Dados
 
 <p align="center">
-  <img src="images/diagrama-pokedex-insights.gif" alt="Arquitetura do Pipeline de Dados" width="700"/>
+  <img src="images/diagrama-pokedex-insights.png" alt="Arquitetura do Pipeline de Dados" width="700"/>
 </p>
 
 #### 1. Data Sources & Ingestion
