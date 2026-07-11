@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv
-import os
+import os 
 import json
 
 #carregar as variáveis de ambiente
