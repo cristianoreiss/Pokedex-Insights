@@ -8,6 +8,7 @@ __pycache__/
 *.py[cod]
 
 airflow/logs/
+logs/
 
 data/
 *.jsonl
