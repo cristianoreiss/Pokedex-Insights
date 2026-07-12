@@ -8,11 +8,14 @@ __pycache__/
 *.py[cod]
 
 airflow/logs/
-logs/
+logs/*
 
-data/
-*.jsonl
-*.csv
+data/*
+!data/.gitkeep
+!data/raw/.gitkeep
+!data/bronze/.gitkeep
+!data/silver/.gitkeep
+!data/gold/.gitkeep
 
 .idea/
 .vscode/

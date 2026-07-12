@@ -1,16 +1,20 @@
 import json
 import requests
 from pathlib import Path
+import polars as pl
 
 raiz_projeto = Path(__file__).resolve().parents[2]
 caminho_dados_raw = raiz_projeto / "data" / "raw"
 caminho_dados_bronze = raiz_projeto / "data" / "bronze"
+caminho_dados_bronze.mkdir(parents=True,exist_ok=True)
 
+# criação das listas que irão virar linhas das tabelas
 lista_pokemon = []
 lista_stats = []
 lista_types = []
 lista_abilities = []
 
+# gerar as linhas
 for caminho in caminho_dados_raw.glob('*.json'):
     with open (caminho, "r") as arquivo:
         pokemon = json.load(arquivo)
@@ -49,4 +53,15 @@ for caminho in caminho_dados_raw.glob('*.json'):
         }
         lista_abilities.append(abilities_pokemon)
 
+## transformar as linhas em dataframes
+df_pokemons = pl.DataFrame(lista_pokemon)
+df_stats = pl.DataFrame(lista_stats)
+df_types = pl.DataFrame(lista_types)
+df_abilities = pl.DataFrame(lista_abilities)
+
+## trasformar os dataframes em parquet
+df_pokemons.write_parquet(caminho_dados_bronze / "pokemon.parquet")
+df_stats.write_parquet(caminho_dados_bronze / "pokemon_stats.parquet")
+df_types.write_parquet(caminho_dados_bronze / "pokemon_types.parquet")
+df_abilities.write_parquet(caminho_dados_bronze / "pokemon_abilities.parquet")
   
