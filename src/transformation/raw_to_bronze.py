@@ -60,8 +60,8 @@ df_types = pl.DataFrame(lista_types)
 df_abilities = pl.DataFrame(lista_abilities)
 
 ## trasformar os dataframes em parquet
-df_pokemons.write_parquet(caminho_dados_bronze / "pokemon.parquet")
-df_stats.write_parquet(caminho_dados_bronze / "pokemon_stats.parquet")
-df_types.write_parquet(caminho_dados_bronze / "pokemon_types.parquet")
-df_abilities.write_parquet(caminho_dados_bronze / "pokemon_abilities.parquet")
+df_pokemons.write_parquet(caminho_dados_bronze / "pokemon_bronze.parquet")
+df_stats.write_parquet(caminho_dados_bronze / "pokemon_stats_bronze.parquet")
+df_types.write_parquet(caminho_dados_bronze / "pokemon_types_bronze.parquet")
+df_abilities.write_parquet(caminho_dados_bronze / "pokemon_abilities_bronze.parquet")
   
