@@ -13,11 +13,23 @@ pokemon_type = pl.read_parquet(caminho_dados_silver / "pokemon_types_silver.parq
 ##print(pokemon)
 ##print(pokemon_stats)
 
-pokemon_table = pokemon.join(pokemon_stats,on="id",how="left")
-
-pokemon_table = pokemon_table.pivot(
-    index=["id", "name", "height", "weight", "base_experience"],
-    on="stat_name",
-    values="base_stat"
+pokemon_table = (
+    pokemon
+    .join(pokemon_stats,on="id",how="left")
+    .pivot(
+        index=["id", "name", "height", "weight", "base_experience"],
+        on="stat_name",
+        values="base_stat"
+    )
 )
+
 print(pokemon_table)
+
+most_10_hp_pokemon = (
+    pokemon_table
+    .select(["id","name","hp"])
+    .sort("hp",descending=True)
+    .head(10)
+)
+
+print(most_10_hp_pokemon)
