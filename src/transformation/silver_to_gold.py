@@ -32,4 +32,19 @@ most_10_hp_pokemon = (
     .head(10)
 )
 
-print(most_10_hp_pokemon)
+most_10_attack_pokemon = (
+    pokemon_table
+    .select(["id","name","attack"])
+    .sort("attack",descending=True)
+    .head(10)
+)
+
+most_10_defende_pokemom = (
+    pokemon_table
+    .select(["id","name","defense"])
+    .sort("defense",descending=True)
+    .head(10)
+
+)
+
+print(most_10_defende_pokemom)
