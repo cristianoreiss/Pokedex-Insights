@@ -39,7 +39,7 @@ most_10_attack_pokemon = (
     .head(10)
 )
 
-most_10_defende_pokemom = (
+most_10_defense_pokemom = (
     pokemon_table
     .select(["id","name","defense"])
     .sort("defense",descending=True)
@@ -47,4 +47,6 @@ most_10_defende_pokemom = (
 
 )
 
-print(most_10_defende_pokemom)
+most_10_defense_pokemom.write_parquet(caminho_dados_gold / "top_defense")
+most_10_attack_pokemon.write_parquet(caminho_dados_gold / "top_attack")
+most_10_hp_pokemon.write_parquet(caminho_dados_gold / "top_hp")

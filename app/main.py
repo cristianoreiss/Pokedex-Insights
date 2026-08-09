@@ -3,9 +3,7 @@ from pathlib import Path
 import pandas as pd
 
 raiz_projeto = Path(__file__).resolve().parents[1]
-
-dados = [["Blissey",255],["Chansey",250],["Guzzlord",223],["Regidrago",200]]
-dataframe_teste = pd.DataFrame(data=dados,columns=["Nome","Valor"])
+caminho_dados_gold = raiz_projeto / "data" / "gold"
 
 
 st.set_page_config(
