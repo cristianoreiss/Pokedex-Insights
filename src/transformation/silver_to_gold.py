@@ -31,6 +31,7 @@ most_10_hp_pokemon = (
     .sort("hp",descending=True)
     .head(10)
 )
+most_10_hp_pokemon = most_10_hp_pokemon.rename({"name":"Nome","hp":"Valor"})
 
 most_10_attack_pokemon = (
     pokemon_table
@@ -38,15 +39,18 @@ most_10_attack_pokemon = (
     .sort("attack",descending=True)
     .head(10)
 )
+most_10_attack_pokemon = most_10_attack_pokemon.rename({"name":"Nome","attack":"Valor"})
 
-most_10_defense_pokemom = (
+most_10_defense_pokemon = (
     pokemon_table
     .select(["id","name","defense"])
     .sort("defense",descending=True)
     .head(10)
 
 )
+most_10_defense_pokemon = most_10_defense_pokemon.rename({"name":"Nome","defense":"Valor"})
 
-most_10_defense_pokemom.write_parquet(caminho_dados_gold / "top_defense")
-most_10_attack_pokemon.write_parquet(caminho_dados_gold / "top_attack")
-most_10_hp_pokemon.write_parquet(caminho_dados_gold / "top_hp")
+
+most_10_defense_pokemon.write_parquet(caminho_dados_gold / "top_defense.parquet")
+most_10_attack_pokemon.write_parquet(caminho_dados_gold / "top_attack.parquet")
+most_10_hp_pokemon.write_parquet(caminho_dados_gold / "top_hp.parquet")
